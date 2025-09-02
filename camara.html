@@ -1,0 +1,50 @@
+
+<div style="text-align:center;"> 
+<video id="cameraPreview" autoplay playsinline style="width:100%; max-height:70vh; transform: rotate(0deg);"></video> 
+<br>
+<button type="button" onclick="captureImage()" style="width:210px; height:50px; margin-top:10px;">Capturar Imagen</button> 
+<canvas id="canvas" style="display:none;"></canvas> 
+<img id="capturedImage" src="" style="max-width:100%; margin-top:10px; transform: rotate(0deg);"> 
+<div id="IMG64" style="display:none;"></div>
+</div> 
+
+<script> 
+document.addEventListener("DOMContentLoaded", function() { 
+let video = document.getElementById("cameraPreview"); 
+navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } } }) 
+.then(stream => { 
+video.srcObject = stream; 
+}) 
+.catch(error => { 
+console.error("Error al acceder a la cámara:", error); 
+}); 
+}); 
+
+window.captureImage = function() { 
+let video = document.getElementById("cameraPreview"); 
+let canvas = document.getElementById("canvas"); 
+let img = document.getElementById("capturedImage"); 
+
+// Forzar landscape (ancho > alto) 
+let width = video.videoWidth; 
+let height = video.videoHeight; 
+&if(height > width) { 
+canvas.width = height; 
+ canvas.height = width; 
+let context = canvas.getContext("2d"); 
+context.translate(height/2, width/2); 
+context.rotate(-90 * Math.PI / 180); 
+context.drawImage(video, -width/2, -height/2, width, height); 
+} else { 
+canvas.width = width; 
+canvas.height = height; 
+let context = canvas.getContext("2d"); '
+context.drawImage(video, 0, 0, width, height); 
+} 
+
+let imageData = canvas.toDataURL("image/jpeg", 1); 
+img.src = imageData; 
+video.srcObject.getTracks().forEach(track => track.stop()); 
+document.getElementById("IMG64").innerHTML = imageData; 
+} 
+</script> 
